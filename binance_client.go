@@ -746,3 +746,26 @@ func (bc *Client) GetOrderBook(symbol string, limit string) (OrderBook, *FwdData
 	}
 	return result, fwd, err
 }
+
+// UniversalTransferResult return transferID of universal transfer request
+type UniversalTransferResult struct {
+	TransferID uint64 `json:"tranId"`
+}
+
+func (bc *Client) UniversalTransfer(tranferType, asset, amount string) (UniversalTransferResult, *FwdData, error) {
+	var (
+		result UniversalTransferResult
+		fwd    *FwdData
+	)
+	requestURL := fmt.Sprintf("%s/sapi/v1/asset/transfer", apiBaseURL)
+	req, err := NewRequestBuilder(http.MethodPost, requestURL, nil)
+	if err != nil {
+		return result, fwd, err
+	}
+	rr := req.WithParam("type", tranferType).
+		WithParam("asset", asset).
+		WithParam("amount", amount).
+		SignedRequest(bc.secretKey)
+	fwd, err = bc.doRequest(rr, &result)
+	return result, fwd, err
+}
