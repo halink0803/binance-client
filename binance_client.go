@@ -762,7 +762,8 @@ func (bc *Client) UniversalTransfer(tranferType, asset, amount string) (Universa
 	if err != nil {
 		return result, fwd, err
 	}
-	rr := req.WithParam("type", tranferType).
+	rr := req.WithHeader(apiKeyHeader, bc.apiKey).
+		WithParam("type", tranferType).
 		WithParam("asset", asset).
 		WithParam("amount", amount).
 		SignedRequest(bc.secretKey)
