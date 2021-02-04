@@ -1,4 +1,4 @@
-module github.com/KyberNetwork/binance-client
+module github.com/halink0803/binance-client
 
 go 1.15
 
