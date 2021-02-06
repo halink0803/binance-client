@@ -752,6 +752,7 @@ type UniversalTransferResult struct {
 	TransferID uint64 `json:"tranId"`
 }
 
+// UniversalTransfer ...
 func (bc *Client) UniversalTransfer(tranferType, asset, amount string) (UniversalTransferResult, *FwdData, error) {
 	var (
 		result UniversalTransferResult
@@ -766,6 +767,39 @@ func (bc *Client) UniversalTransfer(tranferType, asset, amount string) (Universa
 		WithParam("type", tranferType).
 		WithParam("asset", asset).
 		WithParam("amount", amount).
+		SignedRequest(bc.secretKey)
+	fwd, err = bc.doRequest(rr, &result)
+	return result, fwd, err
+}
+
+// UniversalTransferHistory ...
+type UniversalTransferHistory struct {
+	Total uint64 `json:"total"`
+	Rows  []struct {
+		Asset     string `json:"asset"`
+		Amount    string `json:"amount"`
+		Type      string `json:"type"`
+		Status    string `json:"status"`
+		TranID    uint64 `json:"tranId"`
+		Timestamp uint64 `json:"timestamp"`
+	}
+}
+
+// UniversalTransferHistory ...
+func (bc *Client) UniversalTransferHistory() (UniversalTransferHistory, *FwdData, error) {
+	var (
+		err    error
+		fwd    *FwdData
+		result UniversalTransferHistory
+	)
+	requestURL := fmt.Sprintf("%s/sapi/v1/asset/transfer", apiBaseURL)
+	req, err := NewRequestBuilder(http.MethodGet, requestURL, nil)
+	if err != nil {
+		return result, fwd, err
+	}
+	transferType := "MAIN_C2C"
+	rr := req.WithHeader(apiKeyHeader, bc.apiKey).
+		WithParam("type", transferType).
 		SignedRequest(bc.secretKey)
 	fwd, err = bc.doRequest(rr, &result)
 	return result, fwd, err
