@@ -786,7 +786,7 @@ type UniversalTransferHistory struct {
 }
 
 // UniversalTransferHistory ...
-func (bc *Client) UniversalTransferHistory() (UniversalTransferHistory, *FwdData, error) {
+func (bc *Client) UniversalTransferHistory(fromEmail, toEmail string, startTime, endTime uint64) (UniversalTransferHistory, *FwdData, error) {
 	var (
 		err    error
 		fwd    *FwdData
@@ -797,10 +797,22 @@ func (bc *Client) UniversalTransferHistory() (UniversalTransferHistory, *FwdData
 	if err != nil {
 		return result, fwd, err
 	}
-	transferType := "MAIN_C2C"
-	rr := req.WithHeader(apiKeyHeader, bc.apiKey).
-		WithParam("type", transferType).
-		SignedRequest(bc.secretKey)
+	// transferType := "MAIN_C2C"
+	rs := req.WithHeader(apiKeyHeader, bc.apiKey)
+	if fromEmail != "" {
+		rs = rs.WithParam("fromEmail", fromEmail)
+	}
+	if toEmail != "" {
+		rs = rs.WithParam("toEmail", toEmail)
+	}
+	if startTime != 0 {
+		rs = rs.WithParam("startTime", fmt.Sprintf("%d", startTime))
+	}
+
+	if endTime != 0 {
+		rs = rs.WithParam("endTime", fmt.Sprintf("%d", endTime))
+	}
+	rr := rs.SignedRequest(bc.secretKey)
 	fwd, err = bc.doRequest(rr, &result)
 	return result, fwd, err
 }
