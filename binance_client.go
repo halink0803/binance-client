@@ -786,7 +786,7 @@ type UniversalTransferHistory struct {
 }
 
 // UniversalTransferHistory ...
-func (bc *Client) UniversalTransferHistory(fromEmail, toEmail string, startTime, endTime uint64) (UniversalTransferHistory, *FwdData, error) {
+func (bc *Client) UniversalTransferHistory(tranferType string, startTime, endTime uint64) (UniversalTransferHistory, *FwdData, error) {
 	var (
 		err    error
 		fwd    *FwdData
@@ -797,14 +797,8 @@ func (bc *Client) UniversalTransferHistory(fromEmail, toEmail string, startTime,
 	if err != nil {
 		return result, fwd, err
 	}
-	// transferType := "MAIN_C2C"
-	rs := req.WithHeader(apiKeyHeader, bc.apiKey)
-	if fromEmail != "" {
-		rs = rs.WithParam("fromEmail", fromEmail)
-	}
-	if toEmail != "" {
-		rs = rs.WithParam("toEmail", toEmail)
-	}
+	rs := req.WithHeader(apiKeyHeader, bc.apiKey).
+		WithParam("type", tranferType)
 	if startTime != 0 {
 		rs = rs.WithParam("startTime", fmt.Sprintf("%d", startTime))
 	}
